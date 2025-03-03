@@ -1,78 +1,28 @@
-import React from "react";
-import { AlertTriangle, Home, RefreshCw, X } from "lucide-react";
+import React, { useCallback } from "react";
 import { useNavigate } from "react-router";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 
-interface ErrorPopupProps {
-  message: string;
-  onClose: () => void;
-  position?: {
-    top?: string;
-    bottom?: string;
-    left?: string;
-    right?: string;
-  };
+interface ErrorPageProps {
+  error?: Error | null;
+  resetError?: () => void;
 }
 
-const ErrorPopup: React.FC<ErrorPopupProps> = ({
-  message,
-  onClose,
-  position,
-}) => {
+const ErrorPage: React.FC<ErrorPageProps> = ({ error, resetError }) => {
   const navigate = useNavigate();
-  const positionStyles = position || {
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-  };
 
   const handleRefresh = () => {
     window.location.reload();
   };
 
   const handleGoHome = () => {
-    // if (resetError) {
-    //   resetError(); // Reset the ErrorBoundary state first
-    // }
-    navigate("/", { replace: true });
+    if (resetError) {
+      resetError(); // Reset the ErrorBoundary state first
+    }
+    navigate("/login", { replace: true });
     // window.location.reload();
   };
+
   return (
-    // <div
-    //     className="fixed z-50 bg-white rounded-lg shadow-xl p-4 border-l-4 border-red-500 min-w-[300px] dark:bg-gray-900"
-    //     style={positionStyles}
-    // >
-    //     <div className="flex justify-between items-start">
-    //         {typeof message === 'string' ? (
-
-    //             <div className='flex-1'>
-    //                 <h3 className="text-lg font-semibold text-red-600 mb-1">Error</h3>
-    //                 <p className="text-gray-600">{message}</p>
-    //             </div>
-
-    //         ) : (
-    //             <ul>
-    //                 {Object.entries(message).map(([key, value]) => {
-    //                     if (key == "message" || key == "timestamp" || key == "status") {
-
-    //                     } else {
-    //                         return (
-    //                             <div className='flex-1'>
-    //                                 <h3 className="text-lg font-semibold text-red-600 mb-1">Error</h3>
-    //                                 <p className="text-gray-600">{value}</p>
-    //                             </div>
-    //                         )
-    //                     }
-    //                 })}
-    //             </ul>
-    //         )}
-    //         <button
-    //             onClick={onClose}
-    //             className="text-gray-400 hover:text-gray-600 transition-colors"
-    //         >
-    //             <X size={20} />
-    //         </button>
-    //     </div>
-    // </div>
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 text-center">
         <div className="flex justify-center mb-6">
@@ -90,7 +40,7 @@ const ErrorPopup: React.FC<ErrorPopupProps> = ({
           notified and is working to fix the issue.
         </p>
 
-        {/* {error && (
+        {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg text-left">
             <p className="text-sm font-medium text-red-800 dark:text-red-300">
               Error details:
@@ -99,28 +49,6 @@ const ErrorPopup: React.FC<ErrorPopupProps> = ({
               {error.message || "Unknown error"}
             </p>
           </div>
-        )} */}
-        {typeof message === "string" ? (
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-red-600 mb-1">Error</h3>
-            <p className="text-gray-600">{message}</p>
-          </div>
-        ) : (
-          <ul>
-            {Object.entries(message).map(([key, value]) => {
-              if (key == "message" || key == "timestamp" || key == "status") {
-              } else {
-                return (
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-red-600 mb-1">
-                      Error
-                    </h3>
-                    <p className="text-gray-600">{value}</p>
-                  </div>
-                );
-              }
-            })}
-          </ul>
         )}
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -154,4 +82,4 @@ const ErrorPopup: React.FC<ErrorPopupProps> = ({
   );
 };
 
-export default ErrorPopup;
+export default ErrorPage;

@@ -7,6 +7,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { checkSession, loginUser } from "../api";
 import LoginForm from "./AuthForm";
+import LoadingSpinner from "../components/LoadingSpinner";
 const userSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -83,7 +84,8 @@ const Login: React.FC = () => {
     <div>
       {isLoading ? (
         <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-indigo-800 flex items-center justify-center">
-          <div className="text-white text-xl">Loading...</div>
+          <LoadingSpinner size="large" />
+          {/* <div className="text-white text-xl">Loading...</div> */}
         </div>
       ) : isError ? (
         <LoginForm />

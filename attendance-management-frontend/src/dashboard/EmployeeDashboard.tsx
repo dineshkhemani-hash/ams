@@ -9,10 +9,11 @@ import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { checkSession, getAllAttendanceReport, submitAttendance } from "../api";
 import ErrorPopup from "../components/ErrorPopup";
 import { useNavigate } from "react-router";
-import { Bounce, ToastContainer, toast } from "react-toastify";
+
 import FingerprintAnimation from "../animation/FingerPrintAnimation";
 import AttendanceCharts from "../components/AttendanceCharts";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
+import ErrorMessage from "../error/ErrorMessage";
 
 interface TimeComponents {
   hours: number;
@@ -83,7 +84,7 @@ const EmployeeDashboard: React.FC = () => {
           queryKey: ["attendance-record"],
           exact: false, // Invalidate all matching queries
         });
-        // await refetchAttendance()
+        await refetchAttendance();
         showSuccessToast("Attendance marked successfully!"); // Use the centralized function
       }
     },
@@ -210,6 +211,7 @@ const EmployeeDashboard: React.FC = () => {
     totalTime,
     attendanceData?.length || 0
   );
+
   return (
     <div>
       <Layout userRole={sessionData?.data.roleName}>
@@ -221,14 +223,24 @@ const EmployeeDashboard: React.FC = () => {
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => attendanceInMutation.mutate()}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                disabled={selectedDate.month != new Date().getUTCMonth() + 1}
+                // className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                  selectedDate.month != new Date().getUTCMonth() + 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
               >
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Mark In Time
               </button>
               <button
                 onClick={() => setIsEntryPopupOpen(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                disabled={!todaysAttendance} // Disable if no today's attendance
+                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                  !todaysAttendance ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                // className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Mark Out Time
@@ -259,65 +271,6 @@ const EmployeeDashboard: React.FC = () => {
                 value={formatTime(averageTime)}
                 color="purple"
               />
-              {/* <div className="bg-indigo-50 overflow-hidden shadow rounded-lg">
-                            <div className="p-5">
-                                <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <div className="text-indigo-600 text-2xl font-bold">
-                                            {attendanceData ? attendanceData.length : 0}
-                                        </div>
-                                    </div>
-                                    <div className="ml-5 w-0 flex-1">
-                                        <dl>
-                                            <dt className="text-sm font-medium text-gray-500 truncate">
-                                                Days Present
-                                            </dt>
-                                        </dl>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> */}
-
-              {/* <div className="bg-green-50 overflow-hidden shadow rounded-lg">
-                            <div className="p-5">
-                                <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <div className="text-green-600 text-2xl font-bold">
-
-                                            {formatTime(totalTime)}
-                                        </div>
-                                    </div>
-                                    <div className="ml-2 w-0 flex-1">
-                                        <dl>
-                                            <dt className="text-sm font-medium text-gray-500 truncate">
-                                                Total Hours
-                                            </dt>
-                                        </dl>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> */}
-
-              {/* <div className="bg-purple-50 overflow-hidden shadow rounded-lg">
-                            <div className="p-5">
-                                <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <div className="text-purple-600 text-2xl font-bold">
-                                           
-                                            {formatTime(averageTime)}
-                                           
-                                        </div>
-                                    </div>
-                                    <div className="ml-2 w-0 flex-1">
-                                        <dl>
-                                            <dt className="text-sm font-medium text-gray-500 truncate">
-                                                Average Hours/Day
-                                            </dt>
-                                        </dl>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> */}
             </div>
             {/* Charts Section */}
             <div className="bg-gray-50 dark:bg-gray-900 rounded-lg shadow-gray-300 dark:shadow-gray-50 shadow-sm  my-10 p-6">
@@ -404,17 +357,17 @@ const StatCard = React.memo(
 );
 const EmptyState = React.memo(
   ({ onAddAttendance }: { onAddAttendance: () => void }) => (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8">
-        <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+    <div className="min-h-screen  bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-8">
+        <h2 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-gray-200">
           Error
         </h2>
-        <p className="text-center text-red-500 my-10">
+        <p className="text-center text-red-500 dark:text-red-400 my-10">
           No Attendance Record Found
         </p>
         <button
           onClick={onAddAttendance}
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition"
+          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition"
         >
           Add Attendance
         </button>
@@ -424,3 +377,68 @@ const EmptyState = React.memo(
 );
 
 export default EmployeeDashboard;
+{
+  /* <div className="bg-indigo-50 overflow-hidden shadow rounded-lg">
+                            <div className="p-5">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0">
+                                        <div className="text-indigo-600 text-2xl font-bold">
+                                            {attendanceData ? attendanceData.length : 0}
+                                        </div>
+                                    </div>
+                                    <div className="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt className="text-sm font-medium text-gray-500 truncate">
+                                                Days Present
+                                            </dt>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> */
+}
+
+{
+  /* <div className="bg-green-50 overflow-hidden shadow rounded-lg">
+                            <div className="p-5">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0">
+                                        <div className="text-green-600 text-2xl font-bold">
+
+                                            {formatTime(totalTime)}
+                                        </div>
+                                    </div>
+                                    <div className="ml-2 w-0 flex-1">
+                                        <dl>
+                                            <dt className="text-sm font-medium text-gray-500 truncate">
+                                                Total Hours
+                                            </dt>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> */
+}
+
+{
+  /* <div className="bg-purple-50 overflow-hidden shadow rounded-lg">
+                            <div className="p-5">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0">
+                                        <div className="text-purple-600 text-2xl font-bold">
+                                           
+                                            {formatTime(averageTime)}
+                                           
+                                        </div>
+                                    </div>
+                                    <div className="ml-2 w-0 flex-1">
+                                        <dl>
+                                            <dt className="text-sm font-medium text-gray-500 truncate">
+                                                Average Hours/Day
+                                            </dt>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> */
+}
