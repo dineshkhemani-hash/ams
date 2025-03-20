@@ -47,6 +47,7 @@ public JwtAuthFilter(JwtUtills jwtUtills,UserRepository userRepository){
                 Instant iat = jwtUtills.getIssuedAt(token);
                 System.out.println("IAT " + iat);
                 System.out.println(user.getLastLogoutTime());
+                // iat time 10:00:00 and logout time 10:01:00 so before hua iat ke time se so unauthorized
                 if(user.getLastLogoutTime() != null && iat.isBefore(user.getLastLogoutTime())){
                     //token issued before last logout time
                     response.sendError(HttpStatus.UNAUTHORIZED.value(),"TOKEN revoked");
@@ -56,9 +57,6 @@ public JwtAuthFilter(JwtUtills jwtUtills,UserRepository userRepository){
                 //Token valid ho then set authentication
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName())));
                     SecurityContextHolder.getContext().setAuthentication(auth);
-
-
-
 //                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,null, Collections.EMPTY_LIST);
 //                SecurityContextHolder.getContext().setAuthentication(auth);
             }catch (Exception e){

@@ -3,6 +3,7 @@ package com.silvertouch.attendancemanagement.services;
 import com.silvertouch.attendancemanagement.dto.UserLoginDTO;
 import com.silvertouch.attendancemanagement.dto.UserSignupDTO;
 import com.silvertouch.attendancemanagement.enums.ERoles;
+import com.silvertouch.attendancemanagement.exception.ResourceNotFoundException;
 import com.silvertouch.attendancemanagement.model.Roles;
 import com.silvertouch.attendancemanagement.model.Users;
 import com.silvertouch.attendancemanagement.repository.RoleRepository;
@@ -11,6 +12,8 @@ import com.silvertouch.attendancemanagement.utils.AuthMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 @Service
 
@@ -26,6 +29,9 @@ public class AuthService {
 }
 
     public Users Signup(UserSignupDTO userSignupDTO){
+            if(userRepository.existsByEmail(userSignupDTO.getEmail())){
+                throw new ResourceNotFoundException("Email is already taken");
+            }
           Roles role = roleRepository.findByName(ERoles.USER).orElseThrow(() -> new RuntimeException("Role not found"));
           Users users = new Users();
           users.setName(userSignupDTO.getName());
@@ -33,6 +39,7 @@ public class AuthService {
 //          String hashedPassword = AuthMethods.encryptPassword(userSignupDTO.getPassword());
           users.setPassword(userSignupDTO.getPassword());
           users.setRole(role);
+          users.setCreatedAt(Instant.now());
           return userRepository.save(users);
     }
     public Users Login(UserLoginDTO userLoginDTO){

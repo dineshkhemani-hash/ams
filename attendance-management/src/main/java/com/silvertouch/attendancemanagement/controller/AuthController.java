@@ -9,6 +9,7 @@ import com.silvertouch.attendancemanagement.repository.UserRepository;
 import com.silvertouch.attendancemanagement.security.JwtUtills;
 import com.silvertouch.attendancemanagement.services.AuthService;
 import com.silvertouch.attendancemanagement.services.AuthenticationService;
+import com.silvertouch.attendancemanagement.services.CookieService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,25 +31,26 @@ import java.time.Instant;
 public class AuthController {
     private final AuthService authService;
     private final JwtUtills jwtUtils;
-    private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
+    private final CookieService cookieService;
 
     //Since spring 4.3 @AutoWired is optional for single constructor class
-    public AuthController(AuthService authService, JwtUtills jwtUtills, AuthenticationService authenticationService, UserRepository userRepository) {
+    public AuthController(AuthService authService, JwtUtills jwtUtills, UserRepository userRepository,CookieService cookieService) {
         this.authService = authService;
         this.jwtUtils = jwtUtills;
-        this.authenticationService = authenticationService;
         this.userRepository = userRepository;
+        this.cookieService = cookieService;
     }
-
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody UserSignupDTO userSignupDTO, HttpServletRequest request, HttpServletResponse servletResponse) {
         Users createdUser = authService.Signup(userSignupDTO);
         //Step 1 generate token
         String token = jwtUtils.generateToken(createdUser.getId());
-        System.out.println("Generated token at signup " + token);
-        //step 2 add it to cookies
-        servletResponse.setHeader(HttpHeaders.SET_COOKIE, createCookie(token).toString());
+        //step 2 add it to cookies refactored to its own service
+//        servletResponse.setHeader(HttpHeaders.SET_COOKIE, createCookie(token).toString());
+
+        //step 2 add cookies and set header also
+        cookieService.addAuthCookie(servletResponse,token);
         UserResponseDTO userData = new UserResponseDTO(createdUser);
         ApiResponseDTO<UserResponseDTO> response = new ApiResponseDTO<>(
                 "SUCCESS",
@@ -61,22 +63,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO, HttpServletRequest request, HttpServletResponse httpServletResponse) {
-//        try{
-//            Users user = authService.Login(userLoginDTO);
-//            String token = jwtUtils.generateToken(user.getId());
-//
-//            ResponseCookie cookie = createCookie(token);
-//            return ResponseEntity.ok()
-//                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-//                    .body(new ApiResponseDTO<>("SUCCESS", "Login successful", user));
-//        }catch (AuthenticationException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                    .body(new ApiResponseDTO<>("FAILURE", "Invalid credentials"));
-//        }
         Users user = authService.Login(userLoginDTO);
         if (user != null) {
             String token = jwtUtils.generateToken(user.getId());
-            httpServletResponse.setHeader(HttpHeaders.SET_COOKIE, createCookie(token).toString());
+//            refactored to use the CookieService method instead
+//            httpServletResponse.setHeader(HttpHeaders.SET_COOKIE, createCookie(token).toString());
+            cookieService.addAuthCookie(httpServletResponse,token);
             UserResponseDTO userData = new UserResponseDTO(user);
             userData.setToken(token);
             ApiResponseDTO<UserResponseDTO> response = new ApiResponseDTO<>(
@@ -105,15 +97,17 @@ public class AuthController {
             Users currentUser = AuthenticationService.getCurrentUser();
             currentUser.setLastLogoutTime(Instant.now());
             userRepository.save(currentUser);
-            ResponseCookie deleteCookie = ResponseCookie.from("jwt", "")
-                    .httpOnly(true)
-                    .secure(false)  // Set to true in production with HTTPS
-                    .sameSite("Lax")  // Changed from Strict to allow cross-site requests
-                    .path("/")        // Add path to make cookie available for all routes
-                    .domain("localhost")  // Add domain
-                    .maxAge(0)
-                    .build();
-            httpServletResponse.setHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+            //refactored to use CookieService instead
+//            ResponseCookie deleteCookie = ResponseCookie.from("jwt", "")
+//                    .httpOnly(true)
+//                    .secure(false)  // Set to true in production with HTTPS
+//                    .sameSite("Lax")  // Changed from Strict to allow cross-site requests
+//                    .path("/")        // Add path to make cookie available for all routes
+//                    .domain("localhost")  // Add domain
+//                    .maxAge(0)
+//                    .build();
+//            httpServletResponse.setHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+            cookieService.clearAuthCookie(httpServletResponse);
             ApiResponseDTO<?> response = new ApiResponseDTO<>(
                     "SUCCESS",
                     "Logout successful"
@@ -169,17 +163,17 @@ public class AuthController {
     }
 
 
-    private ResponseCookie createCookie(String token) {
-
-        return ResponseCookie.from("jwt", token)
-                .httpOnly(true)
-                .secure(false)  // Set to true in production with HTTPS
-                .sameSite("Lax")  // Changed from Strict to allow cross-site requests
-                .path("/")        // Add path to make cookie available for all routes
-                .domain("localhost")  // Add domain
-                .maxAge(7 * 24 * 60 * 60)
-                .build();
-    }
+//    private ResponseCookie createCookie(String token) {
+//
+//        return ResponseCookie.from("jwt", token)
+//                .httpOnly(true)
+//                .secure(false)  // Set to true in production with HTTPS
+//                .sameSite("Lax")  // Changed from Strict to allow cross-site requests
+//                .path("/")        // Add path to make cookie available for all routes
+//                .domain("localhost")  // Add domain
+//                .maxAge(7 * 24 * 60 * 60)
+//                .build();
+//    }
 }
 //{
 //        "name":"hello",

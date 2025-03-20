@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +22,15 @@ private final AttendanceRepository attendanceRepository;
     public List<AttendanceListDTO> getDailyAttendanceList() {
         Date currentDate = new Date(System.currentTimeMillis());
         List<Attendance> attendanceList = attendanceRepository.findAllDailyAttendance(currentDate);
+        return getAttendanceListDTOS(attendanceList);
+    }
+
+    public List<AttendanceListDTO> getAttendanceByUserId(UUID userId) {
+        List<Attendance> attendanceList = attendanceRepository.findAllAttendanceByUserId(userId);
+        return getAttendanceListDTOS(attendanceList);
+    }
+
+    private List<AttendanceListDTO> getAttendanceListDTOS(List<Attendance> attendanceList) {
         return attendanceList.stream()
                 .map(attendance -> new AttendanceListDTO(
                         attendance.getId(),

@@ -31,5 +31,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, UUID> {
 //    @Query("delete from Attendance where ")
     @Query("SELECT a FROM  Attendance a where a.user.id = :userId  AND a.attendanceDate BETWEEN :startDate AND :endDate ORDER BY a.attendanceDate")
     List<AttendanceCreateDTO> findAttendanceByUserIdAndDateRange(UUID userId, Date startDate, Date endDate);
+    @Query("SELECT a from Attendance  a WHERE a.user.id = :userId")
+    List<Attendance> findAllAttendanceByUserId(UUID userId);
 }
 

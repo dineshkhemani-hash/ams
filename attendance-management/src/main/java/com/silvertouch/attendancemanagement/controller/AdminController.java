@@ -5,6 +5,7 @@ import com.silvertouch.attendancemanagement.model.Roles;
 import com.silvertouch.attendancemanagement.model.Users;
 import com.silvertouch.attendancemanagement.repository.AttendanceRepository;
 import com.silvertouch.attendancemanagement.services.AdminService;
+import com.silvertouch.attendancemanagement.services.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -76,16 +77,22 @@ public class AdminController {
 //    }
     @DeleteMapping("/user/{id}")
     public ResponseEntity<Map<String,String>> deleteUser(@PathVariable UUID id, HttpServletRequest request){
-        HttpSession session = request.getSession(false);
-        if(session == null) {
+//        HttpSession session = request.getSession(false);
+//        if(session == null) {
+//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//        }
+        Users currentUser = AuthenticationService.getCurrentUser();
+        if(currentUser != null ){
+            adminService.deleteUser(id);
+            Map<String, String> response = new HashMap<>();
+            response.put("status","success");
+            response.put("message", "User deleted successfully");
+
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }else{
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        adminService.deleteUser(id);
-        Map<String, String> response = new HashMap<>();
-        response.put("status","success");
-        response.put("message", "User deleted successfully");
 
-        return new ResponseEntity<>(response,HttpStatus.OK);
 //        return ResponseEntity.noContent().build(); //means 204 user deleted successfully
     }
     @GetMapping(path = "/search",params = "q")

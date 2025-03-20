@@ -12,12 +12,6 @@ import org.springframework.stereotype.Service;
 
 public class AuthenticationService {
 
-    private final UserRepository userRepository;
-
-    public AuthenticationService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
     public static Users getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {

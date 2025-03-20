@@ -35,6 +35,9 @@ public class Users {
     @Column(name = "last_logout")
     private Instant lastLogoutTime;
 
+    @Column(name="created_at")
+    private Instant createdAt;
+
     public UUID getId() {
         return id;
     }
@@ -76,5 +79,11 @@ public class Users {
         this.lastLogoutTime = lastLogoutTime;
     }
 
+    public Instant getCreatedAt(){
+        return createdAt;
+    }
+    public void setCreatedAt(Instant createdAt){
+        this.createdAt = createdAt;
+    }
 
 }
