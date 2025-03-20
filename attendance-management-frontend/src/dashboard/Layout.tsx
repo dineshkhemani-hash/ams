@@ -1,20 +1,32 @@
 import React from "react";
 import { useNavigate, useLocation, Link } from "react-router";
-import { LogOut, Calendar, Users } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { logout } from "../api";
+import { LogOut, Calendar, Users, User } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { checkSession, logout } from "../api";
 import ThemeToggle from "../components/ThemeToggle";
 import { Bounce, ToastContainer } from "react-toastify";
 
 interface LayoutProps {
   children: React.ReactNode;
-  userRole: "admin" | "employee";
+  // userRole: "admin" | "employee";
+  // userId: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, userRole }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
+  const {
+    data: sessionData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["session"],
+    queryFn: checkSession,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: (data) => {
@@ -31,7 +43,6 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole }) => {
     // Add logout logic here
     logoutMutation.mutate();
   };
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col  ">
       <nav className="bg-white dark:bg-gray-800 shadow-md">
@@ -47,7 +58,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole }) => {
                 </div>
               </Link>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                {userRole.toLowerCase() === "admin" ? (
+                {sessionData?.data.roleName.toLowerCase() === "admin" ? (
                   <>
                     <button
                       onClick={() => navigate("/admin-dashboard")}
@@ -100,6 +111,12 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole }) => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <div
+                className="px-2 py-2 inline-flex items-center rounded-md  text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                onClick={() => navigate(`../employee/${sessionData?.data.id}`)}
+              >
+                <User className="h-5 w-6" />
+              </div>
               <ThemeToggle />
               <button
                 onClick={handleLogout}

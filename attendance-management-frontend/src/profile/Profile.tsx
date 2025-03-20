@@ -11,24 +11,37 @@ import {
 } from "lucide-react";
 
 import { User, AttendanceRecord, EmployeeDetail } from "../types";
-import Layout from "./Layout";
+import Layout from "../dashboard/Layout";
 import AttendanceHistory from "../components/AttendanceHistory";
 import AttendanceCalendar from "../components/AttendanceCalender";
+import { useQuery } from "@tanstack/react-query";
+import {
+  checkSession,
+  getAllAttendanceReport,
+  getAttendanceByUserId,
+  getUserById,
+} from "../api";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorPopup from "../components/ErrorPopup";
+import { useAttendanceStats } from "../hooks/useAttendanceStats";
 
-const EmployeeDetailPage: React.FC = () => {
+const Profile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [selectedDate, setSelectedDate] = useState(new Date());
-
+  // const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState({
+    year: new Date().getUTCFullYear(),
+    month: new Date().getUTCMonth() + 1,
+  });
   // Mock data - replace with API call
-  const employee: EmployeeDetail = {
-    id: "1",
-    name: "John Anderson",
-    email: "john.anderson@example.com",
-    role: "employee",
-    position: "Senior Developer",
-    phone: "+1 (555) 123-4567",
-    imageUrl: null,
-  };
+  // const employee: EmployeeDetail = {
+  //   id: "1",
+  //   name: "John Anderson",
+  //   email: "john.anderson@example.com",
+  //   role: "employee",
+  //   position: "Senior Developer",
+  //   phone: "+1 (555) 123-4567",
+  //   imageUrl: null,
+  // };
 
   const attendanceRecords: AttendanceRecord[] = [
     {
@@ -50,6 +63,44 @@ const EmployeeDetailPage: React.FC = () => {
     avgCheckOut: "17:04",
     performanceScore: "Role Model",
   };
+
+  const {
+    data: employee,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<User>({
+    queryKey: ["user-data", id],
+    queryFn: () => getUserById(id),
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+  const {
+    data: sessionData,
+    isLoading: isLoadingSession,
+    isError: isErrorSession,
+  } = useQuery({
+    queryKey: ["session"],
+    queryFn: checkSession,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+  const {
+    data: attendanceData,
+    isLoading: isLoadingAttendance,
+    isError: isErrorAttendance,
+    refetch: refetchAttendance,
+  } = useQuery({
+    queryKey: ["attendance-record"],
+    queryFn: () => getAttendanceByUserId(id),
+    // queryFn: getAllAttendance,
+    refetchOnWindowFocus: false,
+    retry: 1,
+    enabled: !isLoadingSession, // Only fetch when session is loaded
+  });
+
+  const { totalTime, averageTime, presentDays, halfDays, totalDays } =
+    useAttendanceStats(attendanceData || []);
   //   const attendanceRecords: AttendanceRecord[] = [
   //     {
   //       id: "1",
@@ -112,7 +163,22 @@ const EmployeeDetailPage: React.FC = () => {
   //       status: "late",
   //     },
   //   ];
-
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-indigo-800 flex items-center justify-center">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <ErrorPopup
+        message={error as unknown as string}
+        onClose={() => {}}
+        position={{ top: "20px", right: "20px" }}
+      />
+    );
+  }
   return (
     <Layout userRole="admin">
       <div className="space-y-6 max-w-7xl mx-auto">
@@ -138,46 +204,46 @@ const EmployeeDetailPage: React.FC = () => {
 
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
             <div className="relative">
-              {employee.imageUrl ? (
+              {employee?.imageUrl ? (
                 <img
-                  src={employee.imageUrl}
+                  src={employee?.imageUrl}
                   alt={employee.name}
                   className="w-24 h-24 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-                  {employee.name.charAt(0)}
+                  {employee?.name.charAt(0)}
                 </div>
               )}
             </div>
 
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                {employee.name}
+                {employee?.name}
               </h2>
-              <div className="mt-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Role
                   </p>
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {employee.position}
+                    {employee?.roleName}
                   </p>
                 </div>
-                <div>
+                {/* <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Phone Number
                   </p>
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {employee.phone}
                   </p>
-                </div>
+                </div> */}
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Email Address
                   </p>
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {employee.email}
+                    {employee?.email}
                   </p>
                 </div>
               </div>
@@ -190,7 +256,7 @@ const EmployeeDetailPage: React.FC = () => {
                 <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 <div className="ml-3">
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats.totalAttendance}
+                    {totalDays}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Total Attendance
@@ -204,10 +270,10 @@ const EmployeeDetailPage: React.FC = () => {
                 <LogIn className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <div className="ml-3">
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats.avgCheckIn}
+                    {averageTime}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Avg Check In Time
+                    Average Time
                   </p>
                 </div>
               </div>
@@ -218,10 +284,10 @@ const EmployeeDetailPage: React.FC = () => {
                 <LogOut className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 <div className="ml-3">
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats.avgCheckOut}
+                    {totalTime}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Avg Check Out Time
+                    Total Time
                   </p>
                 </div>
               </div>
@@ -232,10 +298,10 @@ const EmployeeDetailPage: React.FC = () => {
                 <Award className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                 <div className="ml-3">
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats.performanceScore}
+                    {presentDays}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Employee Predicate
+                    Present days
                   </p>
                 </div>
               </div>
@@ -246,7 +312,7 @@ const EmployeeDetailPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Attendance History */}
           <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
-            <AttendanceHistory records={attendanceRecords} />
+            <AttendanceHistory records={attendanceData || []} />
           </div>
 
           {/* Calendar */}
@@ -255,9 +321,11 @@ const EmployeeDetailPage: React.FC = () => {
               Calendar View
             </h2>
             <AttendanceCalendar
-              attendanceRecords={attendanceRecords}
-              selectedDate={selectedDate}
-              onDateSelect={setSelectedDate}
+              attendanceRecords={attendanceData || []}
+              selectedDateMonth={selectedDate.month}
+              selectedDateYear={selectedDate.year}
+              // onDateSelect={setSelectedDate}
+              onChange={setSelectedDate}
             />
           </div>
         </div>
@@ -266,7 +334,7 @@ const EmployeeDetailPage: React.FC = () => {
   );
 };
 
-export default EmployeeDetailPage;
+export default Profile;
 
 // import React, { useState } from "react";
 // import { useParams } from "react-router";

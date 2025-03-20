@@ -14,6 +14,7 @@ import FingerprintAnimation from "../animation/FingerPrintAnimation";
 import AttendanceCharts from "../components/AttendanceCharts";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 import ErrorMessage from "../error/ErrorMessage";
+import { useAttendanceStats } from "../hooks/useAttendanceStats";
 
 interface TimeComponents {
   hours: number;
@@ -55,6 +56,14 @@ const EmployeeDashboard: React.FC = () => {
     retry: 1,
     enabled: !isLoadingSession, // Only fetch when session is loaded
   });
+  const {
+    todaysAttendance,
+    totalTime,
+    averageTime,
+    presentDays,
+    halfDays,
+    totalDays,
+  } = useAttendanceStats(attendanceData || []);
   // Stable handlers with useCallback
   const handleMonthChange = useCallback((newDate: Date) => {
     setSelectedDate({
@@ -74,7 +83,9 @@ const EmployeeDashboard: React.FC = () => {
     // fetchAttendanceAgain()
     refetchAttendance();
   }, [selectedDate]);
-
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const attendanceInMutation = useMutation({
     mutationFn: submitAttendance,
     onSuccess: async (data) => {
@@ -113,108 +124,110 @@ const EmployeeDashboard: React.FC = () => {
       />
     );
   }
-
-  // Ensure that data is an array before mapping
-  // const attendanceRecords = attendanceData || [];
-  const getCurrentDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-  console.log(attendanceData);
-  const todayDate = getCurrentDate();
-  // console.log(todayDate)
-  const todaysAttendance = attendanceData.find(
-    (record) => record.attendanceDate === todayDate
-  );
-  console.log(todaysAttendance);
-  // useEffect(() => {
-  //     getAllAttendance()
-  // }, [])
   const handleScanComplete = () => {
     setIsScanning(false);
     // Here you would typically make your API call to actually submit the attendance
     console.log("Attendance recorded successfully");
   };
+  // Ensure that data is an array before mapping
+  // const attendanceRecords = attendanceData || [];
+  // const getCurrentDate = () => {
+  //   const today = new Date();
+  //   const year = today.getFullYear();
+  //   const month = String(today.getMonth() + 1).padStart(2, "0");
+  //   const day = String(today.getDate()).padStart(2, "0");
+  //   return `${year}-${month}-${day}`;
+  // };
+  // const todayDate = getCurrentDate();
+  // console.log(todayDate)
+  // const todaysAttendance = attendanceData.find(
+  //   (record) => record.attendanceDate === todayDate
+  // );
+  // console.log(todaysAttendance);
+  // useEffect(() => {
+  //     getAllAttendance()
+  // }, [])
+
   // Add this utility function at the top of your file
-  const parseTimeString = (timeString: string): TimeComponents => {
-    if (!timeString?.match(/^(\d{1,2}):(\d{2})(:(\d{2}))?$/)) {
-      throw new Error("Invalid time format. Expected HH:MM or HH:MM:SS");
-    }
+  // const parseTimeString = (timeString: string): TimeComponents => {
+  //   if (!timeString?.match(/^(\d{1,2}):(\d{2})(:(\d{2}))?$/)) {
+  //     throw new Error("Invalid time format. Expected HH:MM or HH:MM:SS");
+  //   }
 
-    const parts = timeString.split(":");
-    return {
-      hours: Number(parts[0]),
-      minutes: Number(parts[1]),
-      seconds: parts.length === 3 ? Number(parts[2]) : 0,
-    };
-  };
+  //   const parts = timeString.split(":");
+  //   return {
+  //     hours: Number(parts[0]),
+  //     minutes: Number(parts[1]),
+  //     seconds: parts.length === 3 ? Number(parts[2]) : 0,
+  //   };
+  // };
 
-  const formatTime = (total: TimeComponents): string => {
-    // Handle seconds overflow
-    let { hours, minutes, seconds } = total;
+  // const formatTime = (total: TimeComponents): string => {
+  //   // Handle seconds overflow
+  //   let { hours, minutes, seconds } = total;
 
-    minutes += Math.floor(seconds / 60);
-    seconds = seconds % 60;
+  //   minutes += Math.floor(seconds / 60);
+  //   seconds = seconds % 60;
 
-    // Handle minutes overflow
-    hours += Math.floor(minutes / 60);
-    minutes = minutes % 60;
+  //   // Handle minutes overflow
+  //   hours += Math.floor(minutes / 60);
+  //   minutes = minutes % 60;
 
-    return `${hours}:${minutes.toString().padStart(2, "0")}`;
-  };
+  //   return `${hours}:${minutes.toString().padStart(2, "0")}`;
+  // };
   // Add this function near other time-related functions
-  const calculateAverageTime = (
-    totalTime: TimeComponents,
-    records: number
-  ): TimeComponents => {
-    if (!records) return { hours: 0, minutes: 0, seconds: 0 };
+  // const calculateAverageTime = (
+  //   totalTime: TimeComponents,
+  //   records: number
+  // ): TimeComponents => {
+  //   if (!records) return { hours: 0, minutes: 0, seconds: 0 };
 
-    // Convert all to total minutes first
-    const totalMinutes =
-      totalTime.hours * 60 + totalTime.minutes + totalTime.seconds / 60;
+  //   // Convert all to total minutes first
+  //   const totalMinutes =
+  //     totalTime.hours * 60 + totalTime.minutes + totalTime.seconds / 60;
 
-    // Calculate average minutes
-    const averageMinutes = totalMinutes / records;
+  //   // Calculate average minutes
+  //   const averageMinutes = totalMinutes / records;
 
-    // Convert back to hours, minutes, seconds
-    return {
-      hours: Math.floor(averageMinutes / 60),
-      minutes: Math.floor(averageMinutes % 60),
-      seconds: 0,
-    };
-  };
+  //   // Convert back to hours, minutes, seconds
+  //   return {
+  //     hours: Math.floor(averageMinutes / 60),
+  //     minutes: Math.floor(averageMinutes % 60),
+  //     seconds: 0,
+  //   };
+  // };
 
   // Replace existing average calculation
 
-  let totalTime: TimeComponents = { hours: 0, minutes: 0, seconds: 0 };
+  // let totalTime: TimeComponents = { hours: 0, minutes: 0, seconds: 0 };
 
-  if (attendanceData && attendanceData.length > 0) {
-    attendanceData.forEach((record) => {
-      if (record.duration) {
-        try {
-          const time = parseTimeString(record.duration);
-          totalTime.hours += time.hours;
-          totalTime.minutes += time.minutes;
-          totalTime.seconds += time.seconds;
-        } catch (error) {
-          console.error(`Error parsing duration: ${record.duration}`, error);
-        }
-      }
-    });
-  }
-  // const totalHours = attendanceData && attendanceData.length > 0 && attendanceData?.reduce((sum, record) => sum + record.duration, 0) || 0;
-  // const averageHours = attendanceData && attendanceData.length > 0 ? totalTime.hours / attendanceData.length : 0;
-  const averageTime = calculateAverageTime(
-    totalTime,
-    attendanceData?.length || 0
-  );
+  // if (attendanceData && attendanceData.length > 0) {
+  //   attendanceData.forEach((record) => {
+  //     if (record.duration) {
+  //       try {
+  //         const time = parseTimeString(record.duration);
+  //         totalTime.hours += time.hours;
+  //         totalTime.minutes += time.minutes;
+  //         totalTime.seconds += time.seconds;
+  //       } catch (error) {
+  //         console.error(`Error parsing duration: ${record.duration}`, error);
+  //       }
+  //     }
+  //   });
+  // }
+  // // const totalHours = attendanceData && attendanceData.length > 0 && attendanceData?.reduce((sum, record) => sum + record.duration, 0) || 0;
+  // // const averageHours = attendanceData && attendanceData.length > 0 ? totalTime.hours / attendanceData.length : 0;
+  // const averageTime = calculateAverageTime(
+  //   totalTime,
+  //   attendanceData?.length || 0
+  // );
 
   return (
     <div>
-      <Layout userRole={sessionData?.data.roleName}>
+      <Layout
+      // userRole={sessionData?.data.roleName}
+      // userId={sessionData?.data.id}
+      >
         <div className="bg-white dark:bg-gray-900 dark:border dark:border-gray-300 rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center flex-wrap gap-4">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-50">
@@ -255,20 +268,17 @@ const EmployeeDashboard: React.FC = () => {
         </div>
         {attendanceData && attendanceData.length > 0 ? (
           <>
-            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-4">
               <StatCard
                 title="Days Present"
-                value={attendanceData ? attendanceData.length : 0}
+                value={presentDays}
                 color="indigo"
               />
-              <StatCard
-                title="Total Hours"
-                value={formatTime(totalTime)}
-                color="green"
-              />
+              <StatCard title="Half Days" value={halfDays} color="yellow" />
+              <StatCard title="Total Hours" value={totalTime} color="green" />
               <StatCard
                 title="Average Hours/Day"
-                value={formatTime(averageTime)}
+                value={averageTime}
                 color="purple"
               />
             </div>
@@ -334,6 +344,8 @@ const StatCard = React.memo(
         "bg-green-50 text-green-600  dark:bg-green-900/20  dark:text-green-400",
       purple:
         "bg-purple-50 text-purple-600   dark:bg-purple-900/20  dark:text-purple-400 ",
+      yellow:
+        "bg-yellow-50 text-yellow-600   dark:bg-yellow-900/20  dark:text-yellow-400",
     }[color];
     return (
       <div className={`overflow-hidden shadow rounded-lg  ${colorClasses}`}>

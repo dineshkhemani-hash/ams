@@ -103,21 +103,32 @@ const ErrorPopup: React.FC<ErrorPopupProps> = ({
         {typeof message === "string" ? (
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-red-600 mb-1">Error</h3>
-            <p className="text-gray-600">{message}</p>
+            <p className="text-gray-600 mb-2">{message}</p>
           </div>
         ) : (
           <ul>
             {Object.entries(message).map(([key, value]) => {
-              if (key == "message" || key == "timestamp" || key == "status") {
-              } else {
+              if (key === "message") {
                 return (
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-red-600 mb-1">
+                    <h3 className="text-lg font-semibold text-red-600 mb-2">
                       Error
                     </h3>
-                    <p className="text-gray-600">{value}</p>
+                    <p className="text-gray-600 mb-2">
+                      {message["message"] || message["error"]}
+                    </p>
                   </div>
                 );
+              } else if (key === "timestamp" || key === "status") {
+              } else {
+                // return (
+                //   <div className="flex-1">
+                //     <h3 className="text-lg font-semibold text-red-600 mb-1">
+                //       Error
+                //     </h3>
+                //     <p className="text-gray-600 mb-2">{value}</p>
+                //   </div>
+                // );
               }
             })}
           </ul>

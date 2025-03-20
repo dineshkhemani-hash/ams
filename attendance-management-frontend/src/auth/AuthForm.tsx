@@ -79,17 +79,18 @@ const LoginForm = () => {
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-8">
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-            <Lock className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+      {!error ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-8">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+              <Lock className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+            </div>
           </div>
-        </div>
-        <h2 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-gray-100 font-display">
-          Welcome Back
-        </h2>
+          <h2 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-gray-100 font-display">
+            Welcome Back
+          </h2>
 
-        {/* <form onSubmit={handleSubmit} className="space-y-6">
+          {/* <form onSubmit={handleSubmit} className="space-y-6">
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -140,67 +141,67 @@ const LoginForm = () => {
 
                     </button>
                 </form> */}
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-6">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 transition bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                placeholder="you@example.com"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Password
-              </label>
-              <div className="relative">
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-6">
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Email Address
+                </label>
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
+                  id="email"
+                  name="email"
+                  type="email"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  placeholder="••••••••"
-                  value={formData.password}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 transition bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  placeholder="you@example.com"
+                  value={formData.email}
                   onChange={handleChange}
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
               </div>
-            </div>
-            <div className="flex justify-end">
-              <Link
-                to="/forgot-password"
-                className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
-              >
-                Forgot password?
-              </Link>
-            </div>
-            {/* <div className="flex items-center justify-between">
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              {/* <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
                   id="remember-me"
@@ -226,24 +227,24 @@ const LoginForm = () => {
               </div>
             </div> */}
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full bg-indigo-600 dark:bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition flex items-center justify-center gap-2 ${
-                isLoading ? "opacity-70 cursor-not-allowed" : ""
-              }`}
-            >
-              {isLoading ? "Signing in..." : "Sign in"}
-            </button>
-
-            <div className="text-center mt-6">
-              <Link
-                to={"/signup"}
-                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium"
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={`w-full bg-indigo-600 dark:bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition flex items-center justify-center gap-2 ${
+                  isLoading ? "opacity-70 cursor-not-allowed" : ""
+                }`}
               >
-                Don't have an account? Sign up
-              </Link>
-              {/* <p className="text-sm text-gray-600">
+                {isLoading ? "Signing in..." : "Sign in"}
+              </button>
+
+              <div className="text-center mt-6">
+                <Link
+                  to={"/signup"}
+                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium"
+                >
+                  Don't have an account? Sign up
+                </Link>
+                {/* <p className="text-sm text-gray-600">
                 Don't have an account?{" "}
                 <a
                   href="/signup"
@@ -252,10 +253,10 @@ const LoginForm = () => {
                   Sign up
                 </a>
               </p> */}
+              </div>
             </div>
-          </div>
-        </form>
-        {/* <div className="mt-6 text-center">
+          </form>
+          {/* <div className="mt-6 text-center">
           <button
             onClick={() => navigate("/signup")}
             className="text-indigo-600 hover:text-indigo-800 text-sm font-medium cursor-pointer"
@@ -263,9 +264,8 @@ const LoginForm = () => {
             Don't have an account? Sign up
           </button>
         </div> */}
-      </div>
-
-      {error && (
+        </div>
+      ) : (
         <ErrorPopup
           message={error}
           onClose={() => setError(null)}
@@ -275,6 +275,10 @@ const LoginForm = () => {
           }}
         />
       )}
+
+      {/* {error && (
+       
+      )} */}
     </div>
   );
 };

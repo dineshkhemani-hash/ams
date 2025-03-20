@@ -4,7 +4,13 @@ import SignupForm from "./auth/Signup.tsx";
 import { Home } from "./homepage/Home.tsx";
 import EmployeeDashboard from "./dashboard/EmployeeDashboard.tsx";
 import AdminDashboard from "./dashboard/AdminDashboard.tsx";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  ScrollRestoration,
+  useLocation,
+} from "react-router";
 import ProtectedRoute from "./auth/ProtectedRoute.tsx";
 import Login from "./auth/Login.tsx";
 
@@ -14,6 +20,7 @@ import NotFoundPageCreated from "./error/NotFoundPageCreated.tsx";
 import ErrorBoundary from "./error/ErrorBoundary.tsx";
 import ErrorComponentExample from "./error/ErrorComponentExample.tsx";
 import { ThemeProvider } from "./context/ThemeProvider.tsx";
+import Profile from "./profile/Profile.tsx";
 
 function App() {
   return (
@@ -34,7 +41,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
+            <Route
+              path="/employee/:id"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/admin-dashboard"
               element={

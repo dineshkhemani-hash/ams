@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { deleteUserFromAdmin, getAllUsers, searchUserFromAdmin } from "../api";
 import React, { useCallback, useMemo, useState } from "react";
 import { User } from "../types";
-import { Pencil, Trash2 } from "lucide-react";
+import { Info, Pencil, Trash2 } from "lucide-react";
 import UserForm from "./UserForm";
 import GeneralPopup from "./GeneralPopup";
 import { useDebouncedSearch } from "../hooks/useDebouncedSearch";
@@ -238,6 +238,12 @@ export const AdminUserData: React.FC<AdminUserDataProps> = ({
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => navigate(`employee/${user.id}`)}
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 mr-4  dark:hover:text-indigo-300"
+                      >
+                        <Info className="h-4 w-4" />
+                      </button>
                       <button
                         onClick={() => {
                           setSelectedUser(user);

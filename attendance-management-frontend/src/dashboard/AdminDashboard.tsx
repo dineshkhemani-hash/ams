@@ -137,7 +137,10 @@ const AdminDashboard: React.FC = () => {
         </>
       ) : (
         <>
-          <Layout userRole={sessionData?.data.roleName}>
+          <Layout
+          // userRole={sessionData?.data.roleName}
+          // userId={sessionData?.data.id}
+          >
             <div className="bg-white  dark:bg-gray-800 rounded-lg shadow-md p-6">
               <div className="flex justify-between items-center flex-wrap gap-4 mb-6">
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">

@@ -45,7 +45,7 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ error, resetError }) => {
             <p className="text-sm font-medium text-red-800 dark:text-red-300">
               Error details:
             </p>
-            <p className="text-sm text-red-700 dark:text-red-400 font-mono mt-1 break-words">
+            <p className="text-sm text-red-700 dark:text-red-400 font-mono mt-1 mb-2 break-words">
               {error.message || "Unknown error"}
             </p>
           </div>
