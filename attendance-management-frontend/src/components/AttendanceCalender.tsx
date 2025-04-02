@@ -44,11 +44,6 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const getAttendanceStatus = (date: Date) => {
-    console.log("Checking date:", format(date, "yyyy-MM-dd")); // Debug log
-    const record = attendanceRecords.find((record) => {
-      const recordDate = new Date(record.attendanceDate);
-      return format(recordDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd");
-    });
     // const formattedDate = format(date, "yyyy-MM-dd");
     // const record = attendanceRecords.find(
     //   (r) => format(new Date(r.attendanceDate), "yyyy-MM-dd") === formattedDate
@@ -56,8 +51,26 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
     // const record = attendanceRecords.find((r) =>
     //   isSameDay(new Date(r.attendanceDate), date)
     // );
-    console.log("Found record:", record); // Debug log
-    return record?.status || "ABSENT";
+    const currentDate = new Date();
+    const formattedCurrentDate = format(currentDate, "yyyy-MM-dd");
+    const formattedDate = format(date, "yyyy-MM-dd");
+
+    // If the date is greater than the current date, return "FUTURE"
+    if (formattedDate > formattedCurrentDate) {
+      return "FUTURE";
+    }
+
+    // Check attendance records for the date
+    const record = attendanceRecords.find((record) => {
+      const recordDate = new Date(record.attendanceDate);
+      return format(recordDate, "yyyy-MM-dd") === formattedDate;
+    });
+
+    // If no record is found, default to "ABSENT"
+    return record?.status?.toUpperCase() || "ABSENT";
+    console.log(format(currentDate, "yyyy-MM-dd"));
+
+    return record?.status || "";
     return record?.status?.toUpperCase() || "ABSENT";
   };
 
@@ -69,6 +82,8 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
         return "bg-yellow-500 dark:bg-yellow-500";
       case "ABSENT":
         return "bg-red-500";
+      case "FUTURE":
+        return "bg-gray-400"; // Default color for future dates
       default:
         return "bg-gray-400";
     }
@@ -184,7 +199,7 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
                 // onClick={() => onDateSelect(day)}
                 className={`w-full h-full flex items-center justify-center rounded-full text-sm p-2 relative ${
                   isSameDay(day, new Date())
-                    ? `bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-200 ${statusColor} `
+                    ? ` text-indigo-600 dark:text-indigo-200 ${statusColor} `
                     : `hover:bg-gray-100 dark:hover:bg-gray-700 ${statusColor}`
                 }`}
               >

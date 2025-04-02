@@ -135,7 +135,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {children}
       </main>
       <footer className="bg-white dark:bg-gray-800 dark:text-white text-black shadow mt-auto py-4 text-center w-full">
-        <p>© 2024 Attendance management system</p>
+        <p>© 2025 Attendance management system</p>
       </footer>
       <ToastContainer
         position="top-right"

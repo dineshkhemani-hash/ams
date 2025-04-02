@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { format } from "date-fns";
 import { AttendanceRecord } from "../types";
 import ExportMenu from "./ExportMenu";
+import { Pencil } from "lucide-react";
+import EditAttendanceForm from "./EditAttendanceForm";
 
 interface AttendanceTableProps {
   records: AttendanceRecord[];
@@ -10,6 +12,9 @@ interface AttendanceTableProps {
 
 const AttendanceTable: React.FC<AttendanceTableProps> = ({ records }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isEditAttendanceFormOpen, setIsEditAttendanceFormOpen] =
+    useState(false);
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
   //pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;
@@ -93,6 +98,12 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ records }) => {
                   >
                     Status
                   </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white  dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -122,6 +133,17 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ records }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900  dark:text-gray-100">
                       {/* {record.duration == "" ? "-" : record.duration)} */}
                       {record.status == "" ? "---" : record.status}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => {
+                          setSelectedAttendance(record);
+                          setIsEditAttendanceFormOpen(true);
+                        }}
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 mr-4  dark:hover:text-indigo-300"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -208,6 +230,16 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ records }) => {
           </div>
         </div>
       </div>
+      <EditAttendanceForm
+        isOpen={isEditAttendanceFormOpen}
+        onClose={() => {
+          setIsEditAttendanceFormOpen(false);
+          setSelectedAttendance(null);
+        }}
+        // onSubmit={selectedUser ? handleUpdateUser : handleCreateUser}
+        initialData={selectedAttendance || undefined}
+        // mode={selectedUser ? 'update' : 'create'}
+      />
     </div>
   );
 };

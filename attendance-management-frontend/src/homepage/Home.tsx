@@ -181,7 +181,7 @@ export const Home: React.FC = () => {
               </span>
             </div>
             <p className="text-gray-500 text-sm">
-              © 2024 AttendanceHub. All rights reserved.
+              © 2025 AttendanceHub. All rights reserved.
             </p>
           </div>
         </div>

@@ -207,64 +207,71 @@ export const AdminUserData: React.FC<AdminUserDataProps> = ({
                   </th>
                 </tr>
               </thead>
-              {displayData.map((user) => (
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  <tr key={user.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {user.name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {user.email}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {/* <span className={`px-4 inline-flex text-xs leading-5 font-semibold rounded-full ${user.roleName === 'admin'
+              {displayData.map((user) => {
+                if (user?.roleName?.toLowerCase() != "admin") {
+                  return (
+                    <tbody
+                      className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
+                      key={user.id}
+                    >
+                      <tr key={user.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {user.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {user.email}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {/* <span className={`px-4 inline-flex text-xs leading-5 font-semibold rounded-full ${user.roleName === 'admin'
                                         ? 'bg-purple-100 text-purple-800'
                                         : 'bg-green-100 text-green-800'
                                         }`}>
                                         {user.roleName}
                                     </span> */}
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          user.roleName === "admin"
-                            ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                            : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        }`}
-                      >
-                        {user.roleName}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => navigate(`employee/${user.id}`)}
-                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 mr-4  dark:hover:text-indigo-300"
-                      >
-                        <Info className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setIsUserFormOpen(true);
-                        }}
-                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 mr-4  dark:hover:text-indigo-300"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        // onClick={(prev) => setIsPopupOpen(!false)}
-                        onClick={() => handleDeleteConfirmation(user.id)}
-                        aria-label={`Delete ${user.name}`}
-                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              ))}
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              user.roleName === "admin"
+                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                                : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            }`}
+                          >
+                            {user.roleName}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            onClick={() => navigate(`employee/${user.id}`)}
+                            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 mr-4  dark:hover:text-indigo-300"
+                          >
+                            <Info className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setIsUserFormOpen(true);
+                            }}
+                            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 mr-4  dark:hover:text-indigo-300"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            // onClick={(prev) => setIsPopupOpen(!false)}
+                            onClick={() => handleDeleteConfirmation(user.id)}
+                            aria-label={`Delete ${user.name}`}
+                            className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  );
+                }
+              })}
             </table>
             <div className="flex items-center justify-center space-x-2 mt-6">
               {/* Previous page button */}

@@ -102,6 +102,7 @@ export const getAttendanceByUserId = async (id: string) => {
     throw handleApiError(error);
   }
 };
+
 export const getAllRoles = async () => {
   try {
     const response = await axios.get(
@@ -117,6 +118,18 @@ export const updateUserFromAdmin = async (formData) => {
   try {
     const response = await axios.patch(
       `${API_URL}api/v1/admin/user/${formData.id}`,
+      formData,
+      axiosConfig
+    );
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+export const updateAttendanceFromAdmin = async (formData) => {
+  try {
+    const response = await axios.patch(
+      `${API_URL}api/v1/admin/attendance/update/${formData.id}`,
       formData,
       axiosConfig
     );
